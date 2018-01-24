@@ -12,11 +12,13 @@ class AdminMonitorAlertsController < ApplicationController
 
       raise "Issue already exist!!" if @admin_monitor_alert.issue_id
 
+      settings = Setting.plugin_redmine_admin_monitor
+
       @issue = Issue.create!({:author_id => User.current.id,
-       :project_id => RedmineAdminMonitor::Setting.default_project_id,
+       :project_id => Project.find(settings['default_project_id']),
        :assigned_to_id => User.current.id,
        :subject=> "#{@admin_monitor_alert.alert_type} in #{@admin_monitor_alert.source} on #{@admin_monitor_alert.action}",
-       :tracker_id => RedmineAdminMonitor::Setting.default_tracker_id,
+       :tracker_id => Tracker.find(settings['default_tracker_id']),
        :description => prity_stack(@admin_monitor_alert.message,@admin_monitor_alert.backtrace) })
 
       @admin_monitor_alert.update_attributes({:issue_id => @issue.id})
